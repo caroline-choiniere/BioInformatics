@@ -1,0 +1,116 @@
+---
+title: "RNA Seq Part 1"
+format: html
+editor: visual
+---
+
+```{r}
+#install.packages("devtools")
+library(devtools)
+#install_github("danmaclean/rbioinfcookbook")
+library(rbioinfcookbook)
+```
+
+# Installing Packages
+
+installing packages needed to do analysis and installing a package from the R Bioinformatics Cookbook. Then installing other packages to use to analyze data. installing forcats and then use Bioconductor as a package installer like a pipefitter.
+
+```{r}
+#install.packages("forcats")
+#if (!require("BiocManager", quietly = TRUE))
+#install.packages("BiocManager")
+#BiocManager::install("edgeR")
+#if (!require("BiocManager", quietly = TRUE))
+  #install.packages("BiocManager")
+#BiocManager::install("Biobase")
+#library(forcats)
+#library(edgeR)
+```
+
+```{r}
+#install.packages("forcats")
+#if (!require("BiocManager", quietly = TRUE))
+    #install.packages("BiocManager")
+#BiocManager::install("edgeR")
+#if (!require("BiocManager", quietly = TRUE))
+  #install.packages("BiocManager")
+#BiocManager::install("Biobase")
+library(forcats)
+library(edgeR)
+library(Biobase)
+```
+
+# edgeR Estimate Differential Expression (EDE)
+
+Used edgeR means that we can see how two or more samples differ in what genes are being expressed. Going to use the sample data set from cookbook modencodefly. Other way to put it is use trimmed mean of M-values (TMM) and the generalized linear model (GLM) to estimate differential expression.
+
+-   TMM is using the mean of log-transformed gene expression values to help scale data and account for differences in data collection between samples. Most likely will see this in the sample data as the size of the library or the amount of data collected for each sample?
+
+-   GLM gen form of linear model that works well for count data, going to be used to compare differences between treatments or the type of samples in the sample data set modencodefly?
+
+# Using edgeR from a count table
+
+Start by loading a transcript count table, meaning raw data that has the RNA transcripts (tcs) recorded in the samples and and a count for each tcs. First step is loading data set from cookbook and dataframe below has a dataset converted to a matrix readable to R.
+
+Dataframe is the RNA tcs counts from the Drosophila (dp) experiment.
+
+```{r}
+genes <- count_dataframe[['gene']]
+count_dataframe[['gene']] <- NULL
+count_matrix <- as.matrix(count_dataframe)
+rownames(count_matrix) <- genes
+```
+
+Then we have a data table with 14,869 observations (these are the different gene transcripts) and the 147 variables are the different fly samples.
+
+The first line is saying that we want to focus on the two experiments about the larvae and their larval stage. Ran into error code (Error in h(simpleError(msg, call)) : error in evaluating the argument 'x' in selecting a method for function 'which': object 'experiments_of_interest' not found)
+
+Third line sets state as the grouping factor or categorical variable used to compare between samples.
+
+```{r}
+experiments_of_interest <- c("L1Larvae", "L2Larvae")
+columns_of_interest <- which(pheno_data[['stage']] %in% experiments_of_interest)
+grouping <- pheno_data[["stage"]] [columns_of_interest] |> forcats::as_factor()
+```
+
+Next chunk is subseting data to pull out solumns interested in. Going to form subset of count_matrix data that only includes interest, counts_of_interest.
+
+```{r}
+counts_of_interest <- count_matrix[,counts = columns_of_interest]
+```
+
+To assemble all our data into one object use the DGElist function in edgeR to assemble into one object. Makes it easier to perform analysis.
+
+```{r}
+count_dge <- edgeR::DGEList(counts = counts_of_interest, group = grouping)
+```
+
+Doing the count_dge allows us to begin our differential expression analysis. Going to use five functions from edgeR package.
+
+```{r}
+design <- model.matrix(~grouping)
+eset_dge <- edgeR::estimateDisp(count_dge, design)
+fit <- edgeR::glmQLFit(eset_dge, design)
+result <- edgeR::glmQLFTest(fit, coef=2)
+topTags(result)
+```
+
+Interpreting the data
+
+1.  Column 1 shows the gene tcs of interest
+
+2.  logFC = log Fold Change meaning a measure of the differences between the two samples, basic average of expression
+
+3.  logCPM = log Counts per Million, (similar (sim) to the average (av) expression value of gene across samples) accounts for large number of gene tcs.
+
+4.  Column 4, 5, 6 are the results of statistical test.
+
+    1.  Column 6, FDR (false detection rate) is most relevant because it is a p-value that has been corrected for the number of tests we're conducting, but makes more sense as adjusted to decrease the probability of false detection.
+
+5.  FDR can see that a number of gene tcs are differentially expressed genes between two treatments
+
+# Doing some Preliminary Research
+
+Looking up gene names on the flybase database.
+
+FBgn0000022, it makes sense that this gene would be differentially expressed between instar 1 and instar 2
