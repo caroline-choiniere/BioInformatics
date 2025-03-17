@@ -113,4 +113,12 @@ Interpreting the data
 
 Looking up gene names on the flybase database.
 
-FBgn0000022, it makes sense that this gene would be differentially expressed between instar 1 and instar 2
+FBgn0000022, it makes sense that this gene would be differentially expressed between instar 1 and instar 2 as the nervous system grows and changes in the instar step.
+
+FBgn0027527, this gene is differential expressed between instar 1 and 2 because it seems like if there is one copy or three copies the dp will die. (Flies with either one copy or three copies of Tpl die as late embryos or early first instar larvae. (Adapted from [FBrf0173211](https://flybase.org/reports/FBrf0173211.html) and [FBrf0217655](https://flybase.org/reports/FBrf0217655.html)).)
+
+FBgn0037424, protein coding gene, and is differentially expressed because of the morphological changes between instar 1 and 2, it is a prevalent gene in many significant structures.
+
+# Summary: 
+
+Learned how to use edgeR to analyze r-seq data and to compare RNA-seq data from two treatments of dp. I was able to use the final differential expression analysis and see the genes with the highest measure of differences between the two samples. Using flybase was interesting and gave further info on what each gene did and why or why not it was differentially regulated between each instar.
