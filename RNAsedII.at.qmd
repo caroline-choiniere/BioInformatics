@@ -1,0 +1,92 @@
+---
+title: "RNAseqII.at"
+format: html
+editor: visual
+---
+
+## RNA-seq Part 2
+
+In the first part, we learned how to analyze RNA-seq data and determine which genes in the sample dataset were differentially expressed or turned on/off from instar 1 to instar 2. We used edgeR alongside a couple other R packages to further analyze the sample data set.
+
+RNA-seq part 2 is focusing on visualizing data and narrowing down on genes that are different as well as analysis of the patterns in the data. This part is focusing on a sample data set from the R bioinformatics cookbook using the model plant species Arabidopsis thaliana. This is focusing on how its gene expression varies in different parts of the plant. Then we can use RNA-seq to see if gene expression varies by ecotype.
+
+# Install/Load packages
+
+```{r}
+#| warning: false
+#if (!require("BiocManager", quietly = TRUE))
+    #install.packages("BiocManager")
+
+#BiocManager::install("ComplexHeatmap")
+```
+
+These packages will allow for data to be organized and visualized with useful color scheme. Installed and then replaced the \#
+
+```{r}
+#install.packages("viridisLite")
+#install.packages("stringr")
+#install.packages("RColorBrewer")
+#install.packages("circlize")
+```
+
+Loading all the packages including rbioinfocookbook
+
+```{r}
+library(ComplexHeatmap)
+library(viridisLite)
+library(stringr)
+library(RColorBrewer)
+library(circlize)
+
+library(rbioinfcookbook)
+```
+
+# Loading the dataset
+
+What is happening: loading dataset from rbioinfocookbook, name of the dataset is at_tf_gex, pulling a few columns of interest and scale the data to make it more visually useful. Then using a function in the stringer package to split the data by ecotype.
+
+rbioinfocookbook, is spelled wrong and I think is the only reason my R is not throwing an error as if spelled correctly it is masked in global environment by count_dataframe
+
+```{r}
+mat <- log(as.matrix(at_tf_gex[ , 5:55]))
+ecotype <- stringr::str_split(colnames(mat), ",", simplify = TRUE)[,1]
+part <- stringr::str_split(colnames(mat), ",", simplify = TRUE)[,2]
+```
+
+# Color Palettes
+
+use circlize and viridisLite packages to create color palettes for different types of data in the heatmap, makes it so we can create a unique color palette for each ecotype and plant part.
+
+```{r}
+data_col_func <- circlize::colorRamp2(seq(0, max(mat), length.out = 6), viridisLite::magma(6))
+
+ecotype_colors <- c(RColorBrewer::brewer.pal(12, "Set3"), RColorBrewer::brewer.pal(5, "Set1"))
+names(ecotype_colors) <- unique(ecotype)
+
+part_colors <- RColorBrewer::brewer.pal(3, "Accent")
+names(part_colors) <- unique(part)
+```
+
+\*doing command+shift only runs one line of the code and does not run the whole chunk?
+
+# Annotations and Formatting
+
+Adding annotations to heatmap, ecotype and plant part information are included in the top_annot. use annotation_name_side to set the annotation to the left of the color that they represent.
+
+-   side_annot used to add annot to the rows of the heatmap. adding the length information for the samples in this scenario.
+
+    -   formatting the plot
+
+        -   anno_points, specifies locus of the points to be plotted
+
+        -   pch, shape of the points
+
+        -   size, size of pts
+
+        -   axis_param, locus of the ticks on the x-axis
+
+```{r}
+top_annot <- HeatmapAnnotation("Ecotype" = ecotype, "Plant Part" = part, col = list("Ecotype" = ecotype_colors, "Plant Part" = part_colors), annotation_name_side = "left")
+
+side_annot <- rowAnnotation(length = anno_points(at_tf_gex$Length, pch = 16, size = unit(1, "mm"), axis_param = list(at = seq(1, max(at_tf_gex$Length), length.out = 4)),))
+```
