@@ -119,6 +119,6 @@ FBgn0027527, this gene is differential expressed between instar 1 and 2 because 
 
 FBgn0037424, protein coding gene, and is differentially expressed because of the morphological changes between instar 1 and 2, it is a prevalent gene in many significant structures.
 
-# Summary: 
+# Summary:
 
 Learned how to use edgeR to analyze r-seq data and to compare RNA-seq data from two treatments of dp. I was able to use the final differential expression analysis and see the genes with the highest measure of differences between the two samples. Using flybase was interesting and gave further info on what each gene did and why or why not it was differentially regulated between each instar.

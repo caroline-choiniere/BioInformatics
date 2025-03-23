@@ -90,3 +90,39 @@ top_annot <- HeatmapAnnotation("Ecotype" = ecotype, "Plant Part" = part, col = l
 
 side_annot <- rowAnnotation(length = anno_points(at_tf_gex$Length, pch = 16, size = unit(1, "mm"), axis_param = list(at = seq(1, max(at_tf_gex$Length), length.out = 4)),))
 ```
+
+# Creating the Heatmap
+
+Using the heatmap function in complex heatmap, going to specify mat as the dataset. data_col_func uses the color palettes from the chunk above and the top_annot and side_annot use the annotations made already.
+
+-   Other functions adjust the display of the plot (what the code is going to be doing in next chunk)
+
+    -   row-km: set the \# of clusters for row
+
+    -   cluster_columns, set to TRUE, means column of the heatmap cluster based on similarity in gene expression
+
+    -   column_split: set to ecotype, and groups the columns by ecotype
+
+    -   show_column_names, FALSE, hides the column names to make neater display
+
+    -   column_title: left blank to make the plot look less cluttered
+
+        -   log(TPM) looking at the gene expression by transcript count
+
+        -   lighter colors represent genes more highly expressed.
+
+```{r}
+ht_1 <- Heatmap(mat, name="log(TPM)", row_km = 6, col = data_col_func, top_annotation = top_annot, right_annotation = side_annot, cluster_columns = TRUE, column_split = ecotype, show_column_names = FALSE, column_title = " ")
+
+ComplexHeatmap::draw(ht_1)
+```
+
+# Lingering Questions/Reflection
+
+1.  Able to notice any trends in gene expression based on ecotype or plant part?
+
+    1.  Ecotype Edi-0 has the plant part colors switched from the peach-purple-green to purple-green-peach and threw me off for a second when looking for a difference. Is it on purpose or is it a mistake?
+
+    2.  The ecotypes all have similar log(TPM) by transcript counts which is interesting in an ecotype that is grown in a specific environment, as long as I am reading this correctly.
+
+2.  Running the individual code chunks did not work for me as it was throwing errors like, did not know what heatmap object was. I definitely need to continue playing with R in basics of how code syntax works as it is interesting.
