@@ -1,0 +1,102 @@
+---
+title: "Phylogenetic Analysis and Visualization"
+format: html
+editor: visual
+---
+
+# Intro 
+
+Learning how to analyze data to build phylogenies and will be made using genetic data and big datasets. Will be using ape and treeio oackages to create formats of evolutionary trees, then playing with ggtree to see how to create different visuals of evolutionary trees. The final goal is to interpret the output of the programs and read an evolutionary tree.
+
+# Installing Packages
+
+```{r}
+#install.packages("ape")
+
+#if (!require("BiocManager", quietly = TRUE))
+    #install.packages("BiocManager")
+
+#BiocManager::install("treeio")
+
+#if (!require("BiocManager", quietly = TRUE))
+    #install.packages("BiocManager")
+
+#BiocManager::install("ggtree")
+
+#if (!require("BiocManager", quietly = TRUE))
+    #install.packages("BiocManager")
+
+#BiocManager::install("SGSeq")
+```
+
+Reminder: remove and then replace the \# for each line of code. Also when there is no package in the library error, try and re-run the prior code and then update it if possible.
+
+```{r}
+library(rbioinfcookbook)
+library(SGSeq)
+library(ape)
+library(treeio)
+library(ggplot2)
+library(ggtree)
+```
+
+# Reading and Writing trees
+
+Going to create trees using ape and treeio, using a mammal phylogeny dataset from the R BioInformatics Cookbook (RBC). Going to use the ape package to read the tree in the Newick and Nexus formats.
+
+Newick- evolutionary trees are displayed in text-based format, doesn't create good visuals, good for computers.
+
+Nexus- next step up, builds on Newick, and adds in character data or the DNA sequences and traits to build the tree. It is noted that neither are good for humans but that it is a good start to a computer analysis.
+
+```{r}
+newick_file_path <- fs::path_package("extdata", "mammal_tree.nwk", package = "rbioinfcookbook" )
+
+nexus_file_path <- fs::path_package("extdata", "mammal_tree.nexus", package = "rbioinfcookbook")
+
+newick <- ape::read.tree(newick_file_path)
+nexus <- ape::read.nexus(nexus_file_path)
+```
+
+(chunk is loading the trees into environment to work with. We have started the analysis.)
+
+```{r}
+beast_file_path <- fs::path_package("extdata", "beast_mcc.tree", package = "rbioinfcookbook")
+
+raxml_file_path <- fs::path_package("extdata", "RAxML_bipartitionsBranchLabels.H3", package = "rbioinfcookbook")
+
+beast <- read.beast(beast_file_path)
+raxml <- read.raxml(raxml_file_path)
+```
+
+(chunk is loading the data, mammal phylogeny, in two formats used by treeio)
+
+BEAST- Bayesian Evolutionary Analysis Sampling Trees, common tree format, uses Bayesian method to include different rates of evolution and builds up level of analysis to reflect the data.
+
+RAxML, Randomized Axelerated Maximum Likelihood, popular program for phylogenetic analysis (pa) of large datasets using max likelihoods. Maximum likelihood context - give statistical confidence to evolutionary trees.
+
+(next chunk is going to use the class function to check what type of objects each tree type is, helps to determine analysis function)
+
+(will show that there are two formats, phylo and treedata, can use functions in treeio to interconvert between them both)
+
+```{r}
+class(newick)
+class(nexus)
+class(beast)
+class(raxml)
+```
+
+Using the functions in treeio to convert.
+
+```{r}
+beast_phylo <- treeio::as.phylo(beast)
+newick_tidytree <- treeio::as.treedata(newick)
+```
+
+writing the output files
+
+```{r}
+treeio::write.beast(newick_tidytree, file = "mammal_tree.beast")
+ape::write.nexus(beast_phylo, file = "beast_mcc.nexus")
+```
+
+Note: will save files, trees in format that can be read by other pa packages like the Tree of Life Project. For this project the file should be created in the GitHub project folder.
