@@ -4,11 +4,15 @@ format: html
 editor: visual
 ---
 
-# Intro 
 
-Learning how to analyze data to build phylogenies and will be made using genetic data and big datasets. Will be using ape and treeio oackages to create formats of evolutionary trees, then playing with ggtree to see how to create different visuals of evolutionary trees. The final goal is to interpret the output of the programs and read an evolutionary tree.
+
+# Intro
+
+Learning how to analyze data to build phylogenies and will be made using genetic data and big datasets. Will be using ape and treeio packages to create formats of evolutionary trees, then playing with ggtree to see how to create different visuals of evolutionary trees. The final goal is to interpret the output of the programs and read an evolutionary tree.
 
 # Installing Packages
+
+
 
 ```{r}
 #install.packages("ape")
@@ -29,7 +33,11 @@ Learning how to analyze data to build phylogenies and will be made using genetic
 #BiocManager::install("SGSeq")
 ```
 
+
+
 Reminder: remove and then replace the \# for each line of code. Also when there is no package in the library error, try and re-run the prior code and then update it if possible.
+
+
 
 ```{r}
 library(rbioinfcookbook)
@@ -40,6 +48,8 @@ library(ggplot2)
 library(ggtree)
 ```
 
+
+
 # Reading and Writing trees
 
 Going to create trees using ape and treeio, using a mammal phylogeny dataset from the R BioInformatics Cookbook (RBC). Going to use the ape package to read the tree in the Newick and Nexus formats.
@@ -47,6 +57,8 @@ Going to create trees using ape and treeio, using a mammal phylogeny dataset fro
 Newick- evolutionary trees are displayed in text-based format, doesn't create good visuals, good for computers.
 
 Nexus- next step up, builds on Newick, and adds in character data or the DNA sequences and traits to build the tree. It is noted that neither are good for humans but that it is a good start to a computer analysis.
+
+
 
 ```{r}
 newick_file_path <- fs::path_package("extdata", "mammal_tree.nwk", package = "rbioinfcookbook" )
@@ -57,7 +69,11 @@ newick <- ape::read.tree(newick_file_path)
 nexus <- ape::read.nexus(nexus_file_path)
 ```
 
+
+
 (chunk is loading the trees into environment to work with. We have started the analysis.)
+
+
 
 ```{r}
 beast_file_path <- fs::path_package("extdata", "beast_mcc.tree", package = "rbioinfcookbook")
@@ -68,15 +84,19 @@ beast <- read.beast(beast_file_path)
 raxml <- read.raxml(raxml_file_path)
 ```
 
+
+
 (chunk is loading the data, mammal phylogeny, in two formats used by treeio)
 
 BEAST- Bayesian Evolutionary Analysis Sampling Trees, common tree format, uses Bayesian method to include different rates of evolution and builds up level of analysis to reflect the data.
 
-RAxML, Randomized Axelerated Maximum Likelihood, popular program for phylogenetic analysis (pa) of large datasets using max likelihoods. Maximum likelihood context - give statistical confidence to evolutionary trees.
+RAxML, Randomized Axelerated Maximum Likelihood, popular program for phylogenetic analysis (pa) of large data-sets using max likelihoods. Maximum likelihood context - give statistical confidence to evolutionary trees.
 
 (next chunk is going to use the class function to check what type of objects each tree type is, helps to determine analysis function)
 
-(will show that there are two formats, phylo and treedata, can use functions in treeio to interconvert between them both)
+(will show that there are two formats, phylo and treedata, can use functions in treeio to inter-convert between them both)
+
+
 
 ```{r}
 class(newick)
@@ -85,19 +105,29 @@ class(beast)
 class(raxml)
 ```
 
+
+
 Using the functions in treeio to convert.
+
+
 
 ```{r}
 beast_phylo <- treeio::as.phylo(beast)
 newick_tidytree <- treeio::as.treedata(newick)
 ```
 
-writing the output files
+
+
+Writing the output files.
+
+
 
 ```{r}
 treeio::write.beast(newick_tidytree, file = "mammal_tree.beast")
 ape::write.nexus(beast_phylo, file = "beast_mcc.nexus")
 ```
+
+
 
 Note: will save files, trees in format that can be read by other pa packages like the Tree of Life Project. For this project the file should be created in the GitHub project folder.
 
@@ -105,33 +135,51 @@ General findings: There are five terminal taxa with the same common ancestor. Th
 
 # Using ggtree
 
+
+
 ```{r}
 tree_file <- fs::path_package("extdata", "itol.nwk", package = "rbioinfcookbook")
 
 itol<- ape::read.tree(tree_file)
 ```
 
+
+
 (this chunk is showing us how to learn to visualize trees using ggtree. this is also a newick format.)
+
+
 
 ```{r}
 ggtree(itol)
 ```
 
+
+
 Adding labels to the tree.
+
+
 
 ```{r}
 ggtree(itol) +
   geom_tiplab(color = "blue", size = 1)
 ```
 
+
+
 Now we are adjusting the display and going to make a circular plot by adjusting the layout.
+
+
 
 ```{r}
 ggtree(itol, layout = "circular") +
   geom_tiplab(color = "blue", size = 2)
 ```
 
+
+
 Adding annotations to the tree for practice below. Then adding a strip of color to highlight a particular bacteria clade, it is a red strip 
+
+
 
 ```{r}
 ggtree(itol, layout = "circular") +
@@ -139,7 +187,11 @@ ggtree(itol, layout = "circular") +
   geom_strip(13, 14, color = "red", barsize = 1)
 ```
 
+
+
 Going to practice changing the way the tree is displayed by inverting it using commands similar to ggplot.
+
+
 
 ```{r}
 ggtree(itol) +
@@ -147,13 +199,19 @@ ggtree(itol) +
   scale_x_reverse()
 ```
 
+
+
 Honestly the circular version was prettier but the next option we can do is display the tree as unrooted. It is noted that unrooted trees don't use a time component in case we do not know the common ancestors of the species.
 
 The chunk below is going to unroot the tree. (looks like fireworks)
 
+
+
 ```{r}
 ggtree(itol, layout = "unrooted")
 ```
+
+
 
 ## Loading in Newick mammal file
 
@@ -161,28 +219,41 @@ Loading in the mammal Newick file and using ape to read the tree in the chunk be
 
 (when I did command + shift I think I only ran the second code line and that is why the mammal_file was not found, use the arrow next time)
 
+
+
 ```{r}
 mammal_file <- fs::path_package("extdata", "mammal_tree.nwk", package = "rbioinfcookbook" )
 
 mammal<- ape::read.tree(mammal_file)
 ```
 
+
+
 Going to use ggtree to create a basic tree plot in the next chunk. This will also label the terminal species in blue.
+
+
 
 ```{r}
 ggtree(mammal) +
   geom_tiplab(color = "blue", size = 2)
 ```
 
+
+
 Changing the layout to circular to compare the trees.
+
+
 
 ```{r}
 ggtree(mammal, layout = "circular") +
   geom_tiplab(color = "blue", size = 2)
 ```
 
+
+
 # Summary and Debrief
 
 This exercise uses many basics from ggplot and I will have to try some formatting and display alternatives to see what changes in the trees.
 
 I do not understand why a tree would need to be inverted from an analysis standpoint. Also wouldn't you want to have the tree on a faded grid to see the branch lengths and how they compare to other branches of the the species and their common ancestors or nodes?
+
